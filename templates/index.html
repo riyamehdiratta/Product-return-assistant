@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Commerce Returns Assistant</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1>🛍️ E-Commerce Returns Assistant</h1>
+                <p>Automated Return Processing with AI</p>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Tabs Navigation -->
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchTab('policy')">📋 Policy Compression</button>
+                <button class="tab-btn" onclick="switchTab('eligibility')">✅ Eligibility Check</button>
+                <button class="tab-btn" onclick="switchTab('chat')">💬 Chat Support</button>
+                <button class="tab-btn" onclick="switchTab('analytics')">📊 Analytics</button>
+            </div>
+
+            <!-- Policy Compression Tab -->
+            <div id="policy" class="tab-content active">
+                <div class="card">
+                    <h2>📋 Policy Compression</h2>
+                    <p>Compress long return policies into clear, actionable rules</p>
+                    
+                    <div class="form-group">
+                        <label>Seller ID:</label>
+                        <input type="text" id="sellerId" placeholder="seller_123" value="seller_electronics">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Policy Name:</label>
+                        <input type="text" id="policyName" placeholder="Return Policy" value="Electronics Return Policy">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Policy Text:</label>
+                        <button class="btn-secondary" onclick="loadSamplePolicy()">📄 Load Sample Policy</button>
+                        <textarea id="policyText" rows="8" placeholder="Paste your return policy here..."></textarea>
+                    </div>
+                    
+                    <button class="btn-primary" onclick="compressPolicy()">🔄 Compress Policy</button>
+                    
+                    <div id="policyResult" class="result-box" style="display:none;">
+                        <h3>Compressed Policy Rules:</h3>
+                        <div id="policyOutput"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Eligibility Check Tab -->
+            <div id="eligibility" class="tab-content">
+                <div class="card">
+                    <h2>✅ Eligibility Check</h2>
+                    <p>Check if a return meets policy requirements</p>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Seller ID:</label>
+                            <input type="text" id="elgSellerId" placeholder="seller_electronics" value="seller_electronics">
+                        </div>
+                        <div class="form-group">
+                            <label>Customer ID:</label>
+                            <input type="text" id="customerId" placeholder="cust_123" value="cust_001">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Product Name:</label>
+                            <input type="text" id="productName" placeholder="Product name" value="Gaming Laptop">
+                        </div>
+                        <div class="form-group">
+                            <label>Price ($):</label>
+                            <input type="number" id="productPrice" placeholder="99.99" value="1299.99">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Category:</label>
+                            <select id="productCategory">
+                                <option value="electronics">Electronics</option>
+                                <option value="clothing">Clothing</option>
+                                <option value="home">Home & Garden</option>
+                                <option value="sports">Sports</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Condition:</label>
+                            <select id="productCondition">
+                                <option value="new">New</option>
+                                <option value="unopened">Unopened</option>
+                                <option value="gently_used">Gently Used</option>
+                                <option value="damaged">Damaged</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Purchase Date:</label>
+                            <input type="date" id="purchaseDate" value="2026-02-04">
+                        </div>
+                        <div class="form-group">
+                            <label>Return Reason:</label>
+                            <select id="returnReason">
+                                <option value="CHANGED_MIND">Changed Mind</option>
+                                <option value="DEFECTIVE">Defective</option>
+                                <option value="DAMAGED">Damaged in Transit</option>
+                                <option value="NOT_AS_DESCRIBED">Not as Described</option>
+                                <option value="WRONG_ITEM">Wrong Item</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <button class="btn-primary" onclick="checkEligibility()">🔍 Check Eligibility</button>
+                    
+                    <div id="eligibilityResult" class="result-box" style="display:none;">
+                        <div id="eligibilityOutput"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat Support Tab -->
+            <div id="chat" class="tab-content">
+                <div class="card">
+                    <h2>💬 Chat Support</h2>
+                    <p>Have a conversation with the Returns Assistant</p>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Seller ID:</label>
+                            <input type="text" id="chatSellerId" placeholder="seller_electronics" value="seller_electronics">
+                        </div>
+                        <div class="form-group">
+                            <label>Your Name:</label>
+                            <input type="text" id="chatName" placeholder="Your name" value="Customer">
+                        </div>
+                    </div>
+                    
+                    <div class="chat-box">
+                        <div id="chatMessages" class="chat-messages"></div>
+                    </div>
+                    
+                    <div class="chat-input-box">
+                        <input type="text" id="chatInput" placeholder="Type your message..." onkeypress="if(event.key==='Enter')sendMessage()">
+                        <button class="btn-primary" onclick="sendMessage()">Send 📤</button>
+                    </div>
+                    
+                    <div id="sentimentBox" class="sentiment-box" style="display:none;">
+                        <p>Sentiment: <span id="sentimentText"></span> | Frustration: <span id="frustrationText"></span></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analytics Tab -->
+            <div id="analytics" class="tab-content">
+                <div class="card">
+                    <h2>📊 Analytics</h2>
+                    <p>System metrics and statistics</p>
+                    
+                    <button class="btn-primary" onclick="loadAnalytics()">🔄 Refresh Analytics</button>
+                    
+                    <div id="analyticsResult" class="result-box" style="display:none;">
+                        <div id="analyticsOutput"></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>E-Commerce Returns Assistant © 2026 | Built with ScaleDown Framework</p>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

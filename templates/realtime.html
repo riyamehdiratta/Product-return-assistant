@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Returns Assistant - Real-Time Production Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='realtime.css') }}">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <h1>📦 Returns Assistant</h1>
+                    <p>Real-Time Production Dashboard</p>
+                </div>
+                <div class="status-bar">
+                    <span class="status-badge online">● ONLINE</span>
+                    <span id="current-time" class="current-time"></span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Navigation -->
+        <nav class="navigation">
+            <button class="nav-btn active" data-tab="dashboard">Dashboard</button>
+            <button class="nav-btn" data-tab="sellers">Sellers</button>
+            <button class="nav-btn" data-tab="returns">Returns</button>
+            <button class="nav-btn" data-tab="chat">Chat</button>
+            <button class="nav-btn" data-tab="analytics">Analytics</button>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="content">
+            
+            <!-- Dashboard Tab -->
+            <section id="dashboard" class="tab-content active">
+                <h2>Real-Time Dashboard</h2>
+                
+                <div class="dashboard-grid">
+                    <!-- Key Metrics -->
+                    <div class="metrics-section">
+                        <div class="metric-card">
+                            <div class="metric-label">Total Returns</div>
+                            <div class="metric-value" id="metric-total">0</div>
+                            <div class="metric-trend">↑ Live</div>
+                        </div>
+                        <div class="metric-card approved">
+                            <div class="metric-label">Approved</div>
+                            <div class="metric-value" id="metric-approved">0</div>
+                            <div class="metric-trend">✓</div>
+                        </div>
+                        <div class="metric-card rejected">
+                            <div class="metric-label">Rejected</div>
+                            <div class="metric-value" id="metric-rejected">0</div>
+                            <div class="metric-trend">✗</div>
+                        </div>
+                        <div class="metric-card flagged">
+                            <div class="metric-label">Flagged</div>
+                            <div class="metric-value" id="metric-flagged">0</div>
+                            <div class="metric-trend">⚠️</div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Returns Feed -->
+                    <div class="feed-section">
+                        <h3>📊 Recent Returns (Live Feed)</h3>
+                        <div id="recent-returns-feed" class="returns-feed">
+                            <div class="empty-state">No returns yet. Create one to get started!</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Sellers Tab -->
+            <section id="sellers" class="tab-content">
+                <div class="section-header">
+                    <h2>Sellers Management</h2>
+                    <button class="btn btn-primary" id="add-seller-btn">+ New Seller</button>
+                </div>
+
+                <div id="sellers-container" class="sellers-list">
+                    <div class="empty-state">No sellers yet</div>
+                </div>
+
+                <!-- Add/Edit Seller Modal -->
+                <div id="seller-modal" class="modal">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3>Add New Seller</h3>
+                            <button class="close-btn">&times;</button>
+                        </div>
+                        <form id="seller-form" class="form">
+                            <div class="form-group">
+                                <label>Company Name</label>
+                                <input type="text" name="name" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Email</label>
+                                <input type="email" name="email" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Return Policy Text</label>
+                                <textarea name="policy_text" rows="6" placeholder="Paste your return policy here..."></textarea>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Return Window (Days)</label>
+                                    <input type="number" name="return_window_days" value="30">
+                                </div>
+                                <div class="form-group">
+                                    <label>Refund Type</label>
+                                    <select name="refund_type">
+                                        <option>full</option>
+                                        <option>partial</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Refund Deduction (%)</label>
+                                <input type="number" name="refund_deduction_pct" value="0" min="0" max="100">
+                            </div>
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary">Create Seller</button>
+                                <button type="button" class="btn btn-secondary close-modal">Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Returns Tab -->
+            <section id="returns" class="tab-content">
+                <div class="section-header">
+                    <h2>Return Requests</h2>
+                    <button class="btn btn-primary" id="new-return-btn">+ New Return</button>
+                </div>
+
+                <div class="filter-bar">
+                    <select id="return-status-filter">
+                        <option value="">All Statuses</option>
+                        <option value="approved">Approved</option>
+                        <option value="rejected">Rejected</option>
+                        <option value="pending">Pending</option>
+                    </select>
+                    <select id="return-seller-filter">
+                        <option value="">All Sellers</option>
+                    </select>
+                </div>
+
+                <div id="returns-container" class="returns-table-container">
+                    <table class="returns-table">
+                        <thead>
+                            <tr>
+                                <th>Return ID</th>
+                                <th>Product</th>
+                                <th>Customer</th>
+                                <th>Reason</th>
+                                <th>Status</th>
+                                <th>Refund Amount</th>
+                                <th>Fraud Score</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="returns-tbody">
+                            <tr><td colspan="8" class="empty-state">No returns yet</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Add Return Modal -->
+                <div id="return-modal" class="modal">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3>Create New Return</h3>
+                            <button class="close-btn">&times;</button>
+                        </div>
+                        <form id="return-form" class="form">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Seller</label>
+                                    <select name="seller_id" required>
+                                        <option value="">Select Seller</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Customer ID</label>
+                                    <input type="text" name="customer_id" value="cust_default" required>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Product Name</label>
+                                    <input type="text" name="product_name" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>SKU</label>
+                                    <input type="text" name="product_sku">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Price</label>
+                                    <input type="number" name="price" step="0.01" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Purchase Date</label>
+                                    <input type="date" name="purchase_date" required>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Category</label>
+                                    <input type="text" name="category" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Condition</label>
+                                    <select name="condition" required>
+                                        <option>new</option>
+                                        <option>like_new</option>
+                                        <option>good</option>
+                                        <option>fair</option>
+                                        <option>poor</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Return Reason</label>
+                                    <select name="reason" required>
+                                        <option value="DEFECTIVE">Defective</option>
+                                        <option value="CHANGED_MIND">Changed Mind</option>
+                                        <option value="NOT_AS_DESCRIBED">Not as Described</option>
+                                        <option value="DAMAGED">Damaged in Shipping</option>
+                                        <option value="UNWANTED">Unwanted</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Description</label>
+                                <textarea name="description" rows="4" placeholder="Additional details..."></textarea>
+                            </div>
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary">Create Return</button>
+                                <button type="button" class="btn btn-secondary close-modal">Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Chat Tab -->
+            <section id="chat" class="tab-content">
+                <h2>Chat Support</h2>
+                
+                <div class="chat-container">
+                    <div class="chat-sidebar">
+                        <h3>Conversations</h3>
+                        <div id="conversations-list" class="conversations-list">
+                            <div class="empty-state">No conversations</div>
+                        </div>
+                    </div>
+
+                    <div class="chat-main">
+                        <div id="chat-area" class="chat-area">
+                            <div class="empty-state">Select a conversation to start chatting</div>
+                        </div>
+
+                        <div class="chat-input-area">
+                            <form id="chat-form" class="chat-form">
+                                <input type="hidden" id="current-conversation-id" value="">
+                                <input type="hidden" id="current-customer-id" value="">
+                                <input type="hidden" id="current-seller-id" value="">
+                                <div class="input-group">
+                                    <input type="text" id="chat-input" placeholder="Type your message...">
+                                    <button type="submit" class="btn-send">Send</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Analytics Tab -->
+            <section id="analytics" class="tab-content">
+                <h2>Analytics & Insights</h2>
+
+                <div class="analytics-grid">
+                    <div class="analytics-card">
+                        <h3>Approval Rate</h3>
+                        <div class="analytics-value" id="approval-rate">0%</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="approval-progress"></div>
+                        </div>
+                    </div>
+
+                    <div class="analytics-card">
+                        <h3>Total Refunded</h3>
+                        <div class="analytics-value" id="total-refunded">$0.00</div>
+                        <p class="analytics-subtitle">All approved returns</p>
+                    </div>
+
+                    <div class="analytics-card">
+                        <h3>Avg Refund Amount</h3>
+                        <div class="analytics-value" id="avg-refund">$0.00</div>
+                        <p class="analytics-subtitle">Per approved return</p>
+                    </div>
+
+                    <div class="analytics-card">
+                        <h3>Flagged Returns</h3>
+                        <div class="analytics-value" id="flagged-count">0</div>
+                        <p class="analytics-subtitle">Fraud detected</p>
+                    </div>
+                </div>
+
+                <div class="analytics-section">
+                    <h3>Return Reasons Distribution</h3>
+                    <div id="reasons-chart" class="chart-placeholder">
+                        <canvas id="reasons-canvas"></canvas>
+                    </div>
+                </div>
+
+                <div class="export-section">
+                    <h3>Export Data</h3>
+                    <button class="btn btn-primary" id="export-csv-btn">📥 Export as CSV</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='realtime.js') }}"></script>
+</body>
+</html>
